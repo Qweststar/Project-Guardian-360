@@ -1,107 +1,80 @@
 import streamlit as st
 
-# --- PROJECT GUARDIAN 360: HYBRID BRAIN & GUARDRAILS ---
+# --- PROJECT GUARDIAN 360: STREAMLINED TIERED BRAIN ---
 
-def guardian_hybrid_brain(user_input, age_group, partner_name, grace_level):
-    """
-    Combines your specific taught library with an AI fallback.
-    Includes safety guardrails as the first priority.
-    """
-    # Python is case-sensitive; we normalize to lowercase for matching
+def get_tiered_responses(user_input, age_group):
     lookup = user_input.lower().strip()
-
-    # 1. MANDATORY SAFETY GUARDRAILS
+    
+    # 1. SAFETY GATE (Non-negotiable)
     danger_zone = ["hurt", "kill", "suicide", "hit", "abuse", "beat", "punch"]
     if any(word in lookup for word in danger_zone):
-        return "⚠️ SAFETY ALERT: Please pause. We prioritize safety above all else. If you are in crisis, call or text 988 immediately. You are not alone."
+        return None, "⚠️ SAFETY ALERT: Stop. If you are in crisis, call or text 988 immediately. Safety is the only priority right now."
 
-    # 2. YOUR TAUGHT LIBRARY
-    child_library = {
-        "running": "Remember we walk when indoors.",
-        "hit": "Hitting is not allowed. Hands are for helping.",
-        "quiet": "Use your indoor voice please?",
-        "crying": "I can see you are having a hard time. I'm here to help you.",
-        "touch": "Let's keep our hands to ourselves for now.",
-        "dessert": "We can have dessert after we finish dinner."
+    # 2. THE GUARDIAN LIBRARY (Level 1, 2, 3)
+    child_tiers = {
+        "running": ["Walk inside, please.", "Walking feet only. If you run again, you'll sit for a reset.", "You can't walk safely, so we are stopping this activity now."],
+        "hit": ["Hands are for helping.", "No hitting. If it happens again, the play session ends.", "You chose to hit. Playtime is over while we calm down."],
+        "quiet": ["Indoor voice, please.", "It's too loud. Lower your volume or we take a 5-minute quiet break.", "The noise is too much. We are doing 5 minutes of quiet time now."],
+        "dessert": ["Dinner first, then dessert.", "The rule is food before sugar. Finish your plate.", "You didn't eat dinner, so there is no dessert tonight."]
     }
     
-    teen_library = {
-        "phone": "Let's put the phones away for dinner?",
-        "room": "We need to get this room clean. Do you need some help?",
-        "talk back": f"Let us talk in a manner that is respectful. Keep in mind that I am still your {st.session_state.get('parent_role', 'Parent')}.",
-        "late": "Coming home past curfew is unacceptable per your safety. How can we make sure it doesn't happen next time?"
+    teen_tiers = {
+        "phone": ["Let's put the phones away for dinner.", "No phones at the table. Put it in the basket now.", "The phone is staying with me until tomorrow morning."],
+        "room": ["Need help getting started on your room?", "The room needs to be clean by 6 PM to go out tonight.", "The room isn't clean. Plans are cancelled until the job is done."],
+        "late": ["You're late. Let's be mindful of the time.", "Coming home late is a safety issue. We need to reset trust.", "You broke curfew. You are staying home next weekend to reset."]
     }
 
-    library = teen_library if age_group == "Teen" else child_library
+    library = teen_tiers if age_group == "Teen" else child_tiers
 
-    # Check for manual matches first
-    for trigger, response in library.items():
+    # Search for a match
+    for trigger, responses in library.items():
         if trigger in lookup:
-            return f"🏠 (Library Match): {response}"
+            return responses, None
+            
+    # AI-Style Fallback if no match
+    return [
+        f"L1 (Grace): Redirection for '{user_input}'.",
+        f"L2 (Firm): Clear boundary for '{user_input}'.",
+        f"L3 (Hard Truth): Consequence for '{user_input}'."
+    ], None
 
-    # 3. AI BRAIN FALLBACK
-    return (f"🧠 (AI Brain): I hear that you're dealing with '{user_input}'. "
-            f"Given the {grace_level} stress level, I suggest focusing on a calm boundary "
-            f"that shows respect for both yourself and {partner_name}.")
+# --- UI CONFIGURATION ---
 
-# --- STREAMLIT DASHBOARD CONFIG ---
+st.set_page_config(page_title="Guardian 360", layout="wide")
 
-st.set_page_config(page_title="Project Guardian 360", page_icon="🛡️")
-
-# Sidebar for Personalization
-st.sidebar.title("🛡️ Project Guardian 360")
-parent_role = st.sidebar.text_input("Your Role (e.g. Mom/Dad)", "Parent", key="parent_role")
+st.sidebar.title("🛡️ Guardian 360")
 partner_name = st.sidebar.text_input("Partner Name", "Partner")
+grace_context = st.sidebar.select_slider("Grace Filter (Child's State)", options=["Calm", "Tired", "Stressed", "Meltdown"])
 
-st.sidebar.divider()
-st.sidebar.header("The Grace Filter")
-grace_level = st.sidebar.select_slider(
-    "Child's Emotional State",
-    options=["Calm", "Tired", "Stressed", "Meltdown"]
-)
+st.title("Guardian Response Engine")
 
-# --- MAIN INTERFACE ---
+# Integration of Grace Filter as an Assistant
+if grace_context == "Meltdown":
+    st.info("💡 **Grace Consultant:** Level 1 is highly recommended. The child is currently unable to process Level 3.")
+elif grace_context == "Stressed":
+    st.info("💡 **Grace Consultant:** Level 1 or 2 is best. Be firm but keep your tone low.")
 
-st.title("Guardian Dashboard")
-st.caption(f"Status: Unified Front with {partner_name}")
+# Main Input
+age = st.radio("Age Group", ["Child", "Teen"], horizontal=True)
+user_input = st.text_input("What are you about to say?", placeholder="Type and press Enter...")
 
-if grace_level == "Meltdown":
-    st.error("🚨 **GRACE ALERT:** The child is overwhelmed. Prioritize safety and calm breathing first.")
-
-tabs = st.tabs(["Direct Response", "Accountability", "Unified Front", "Hard Truths"])
-
-with tabs[0]:
-    st.header("Quick Rephrase")
-    age = st.radio("Select Age Group", ["Child", "Teen"], horizontal=True)
+if user_input:
+    responses, safety_error = get_tiered_responses(user_input, age)
     
-    # Typing in this box and hitting ENTER will now trigger the response automatically
-    user_input = st.text_input("What are you about to say?", placeholder="Type here and press Enter...")
-    
-    if user_input:
-        # This code runs automatically as soon as the user presses Enter
-        result = guardian_hybrid_brain(user_input, age, partner_name, grace_level)
-        st.divider()
-        st.subheader("The Recommended Path:")
-        st.success(result)
-        st.info("💡 Tip: You can type a new phrase above and hit Enter again to refresh.")
-
-with tabs[1]:
-    st.header("Parental Accountability")
-    if st.button("I overreacted/yelled"):
-        st.write(f"**The Repair Script:** 'I'm sorry I lost my cool. I shouldn't have taken my frustration out on you. Can we try again?'")
-
-with tabs[2]:
-    st.header("The Unified Front")
-    option = st.selectbox("Situation", ["Support a partner's 'No'", "Modeling respect during a disagreement"])
-    if option == "Support a partner's 'No'":
-        st.warning(f"**The Unified Script:** '{partner_name} already gave you an answer, and I support that decision.'")
+    if safety_error:
+        st.error(safety_error)
     else:
-        st.info(f"**The Grace Script:** 'I see things differently than {partner_name}, but we will discuss it together later.'")
-
-with tabs[3]:
-    st.header("Hard Truths Knowledge Base")
-    st.markdown("""
-    - **No Sugar-Coating:** Be direct and clear.
-    - **Accountability:** Own your mistakes to model health for your child.
-    - **Grace:** Life isn't binary; allow room for human error.
-    """)
+        st.divider()
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown("### Level 1\n*Grace & Redirection*")
+            st.success(responses[0])
+        
+        with col2:
+            st.markdown("### Level 2\n*Firm Boundary*")
+            st.warning(responses[1])
+            
+        with col3:
+            st.markdown("### Level 3\n*Hard Truth/Consequence*")
+            st.error(responses[2])
