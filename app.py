@@ -5,85 +5,88 @@ import requests
 from streamlit_autorefresh import st_autorefresh
 
 # --- 10-SECOND AUTO-REFRESH TIMER ---
-# This refreshes the app every 10,000 milliseconds (10 seconds)
-count = st_autorefresh(interval=10000, key="wisdom_timer")
+st_autorefresh(interval=10000, key="wisdom_timer")
 
-# --- LIVE WISDOM ENGINE ---
+# --- LIVE WISDOM ENGINE (With Cache Bypassing) ---
 def get_guardian_wisdom():
     try:
-        # ZenQuotes API - Pulls a fresh quote on every refresh
-        response = requests.get("https://zenquotes.io/api/random", timeout=2)
+        # Adding a random parameter to the URL to force a fresh pull from the API
+        response = requests.get(f"https://zenquotes.io/api/random?cb={random.randint(1,1000)}", timeout=3)
         if response.status_code == 200:
             data = response.json()
             return f"“{data[0]['q']}” — {data[0]['a']}"
     except:
-        # Fallbacks for offline use
         fallbacks = [
             "“Consistency is the highest form of love.”",
             "“I am the calm in my child's storm.”",
-            "“Firmness and Grace are the two wings of the Guardian.”"
+            "“The way we talk to our children becomes their inner voice.”"
         ]
         return random.choice(fallbacks)
 
-# --- FORCED SUNSET EARTH & PURE BLACK TEXT THEME ---
+# --- FORCED AUTUMN EARTH & PURE BLACK TEXT THEME ---
 st.markdown("""
     <style>
-    /* Main Background: Light Auburn Brown / Tan */
     .stApp { background-color: #DDB892 !important; color: #000000 !important; }
     
-    /* Sidebar: Deep Earthy Brown-Red */
-    [data-testid="stSidebar"] { background-color: #6B4423 !important; color: #FFFFFF !important; }
+    [data-testid="stSidebar"] { background-color: #6B4423 !important; }
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] label {
         color: #FFFFFF !important; font-weight: 700 !important;
     }
     
-    /* Headers & Text */
     h1, h2, h3, h4 { color: #000000 !important; font-family: 'Inter', sans-serif; font-weight: 800 !important; }
     
     /* Selection Box (Deep Earthy Brown-Red) */
-    .stRadio { 
-        background-color: #6B4423 !important; 
-        padding: 15px; 
-        border-radius: 12px; 
-        border: 2px solid #4B3832; 
-    }
+    .stRadio { background-color: #6B4423 !important; padding: 15px; border-radius: 12px; border: 2px solid #4B3832; }
     .stRadio label { color: #FFFFFF !important; font-weight: 700 !important; }
     
-    /* Step Cards - High Contrast */
     .step-card {
         background: #EDE0D4; border-radius: 15px; padding: 20px;
         border: 2px solid #7F5539; margin-bottom: 20px;
         box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);
     }
-    
-    /* Wisdom Box Styling */
-    .wisdom-box {
-        background-color: rgba(107, 68, 35, 0.1);
-        padding: 20px; border-radius: 12px;
-        text-align: center; border-left: 8px solid #6B4423;
-        font-style: italic; font-weight: 600; margin-bottom: 25px;
+
+    /* FIXED WISDOM BOX - Solid Background, No Fade, with Avatar Space */
+    .wisdom-container {
+        display: flex;
+        align-items: center;
+        background-color: #EDE0D4 !important; /* Solid background to stop fading */
+        padding: 20px;
+        border-radius: 15px;
+        border-left: 10px solid #6B4423;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .avatar-icon {
+        font-size: 40px;
+        margin-right: 20px;
+    }
+    .wisdom-text {
+        font-style: italic;
+        font-weight: 700;
         color: #000000 !important;
+        line-height: 1.4;
     }
     </style>
     """, unsafe_allow_html=True)
 
 # --- CORE LOGIC ---
 def get_tiered_responses(user_input, age_group):
+    # Python is case sensitive; we use .lower() for reliability
     lookup = user_input.lower().strip()
     danger_zone = ["hurt", "kill", "suicide", "hit", "abuse", "beat", "punch"]
     if any(word in lookup for word in danger_zone):
-        return None, "✋ **Safety Alert.** Please pause. Reach out to 988 for crisis support."
+        return None, "✋ **Safety Alert.** Please pause. Reach out to 988 if things feel unsafe."
 
     child_library = {
         "running": ["I'd love to see you walk inside, please.", "Walking feet only. If you run again, let's take a reset break.", "Since safety is hard right now, we’re pausing this activity."],
-        "hit": ["Let's use our helping hands.", "No hitting. If it happens again, the play session ends.", "You chose to hit. Playtime is over while we calm down."],
+        "hit": ["Let's use our helping hands.", "No hitting. If it happens again, playtime ends.", "You chose to hit. Playtime is over while we calm down."],
         "lying": ["It feels like there's more to the story. I'm ready for the truth.", "I can only help you when I know what really happened.", "Trust is the anchor. Because of the dishonesty, we're pausing until we repair it."],
-        "disrespect": ["I hear your frustration, but let's try a more respectful tone.", "I'm here to listen when you use a calm voice.", "I value our relationship too much for this tone. We'll talk again when you can lead with respect."]
+        "disrespect": ["I hear your frustration, but let's try a more respectful tone.", "I'm here to listen when you use a calm voice.", "I value our relationship too much for this tone. We'll talk when you can lead with respect."]
     }
     
     teen_library = {
         "phone": ["Could we put the phones away so we can enjoy dinner together?", "The rule is no phones at the table. Please put it in the basket.", "I'll hold onto the phone until morning to help you reset."],
-        "room": ["I noticed the room needs some attention. Need a hand?", "The room needs to be clean by 6 PM to go out tonight.", "The room isn't ready. Plans are on hold until the job is done."],
+        "room": ["I noticed the room needs some attention. Need a hand?", "The room needs to be clean by 6 PM to go out tonight.", "The room isn't ready. Plans for tonight are on hold until the job is done."],
         "late": ["I noticed you were a bit late. Let's be mindful next time.", "Being late is a safety concern. We need to reset our trust.", "Curfew was broken. We'll stay home next weekend to rebuild trust."],
         "lying": ["I'm giving you a safe space to be honest right now.", "Lying makes the situation heavier. Let's fix this now.", "Trust is broken. Privilege is suspended while we rebuild your word."],
         "disrespect": ["I hear your frustration, but please communicate that respectfully.", "We can disagree, but you must remain respectful.", "Respect is required. [Privilege] is suspended until we can talk properly."]
@@ -102,10 +105,15 @@ grace_context = st.sidebar.select_slider("Child's State", options=["Calm", "Tire
 
 st.title("Guardian Response Partner")
 
-# WISDOM BOX WITH AUTO-TIMER
-st.markdown(f'<div class="wisdom-box">{get_guardian_wisdom()}</div>', unsafe_allow_html=True)
+# WISDOM BOX WITH AVATAR & AUTO-TIMER
+current_wisdom = get_guardian_wisdom()
+st.markdown(f"""
+    <div class="wisdom-container">
+        <div class="avatar-icon">🛡️</div>
+        <div class="wisdom-text">{current_wisdom}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-# THE UPDATED BUTTON
 if st.button("For Wisdom"):
     st.rerun()
 
@@ -135,6 +143,6 @@ if user_input:
         if st.button("📝 Record Progress"):
             st.success(f"Great work maintaining the line with {partner_name}. 🌿")
 
-# BOTTOM AFFIRMATIONS
-affirmations = ["I am the calm in my child's storm.", "Consistency is the highest form of love.", "I am raising a person, not managing a behavior."]
+# BOTTOM AFFIRMATION
+affirmations = ["I am the calm in my child's storm.", "Consistency is the highest form of love.", "Firmness and Grace are my strengths."]
 st.markdown(f"<h4 style='text-align: center; margin-top: 50px;'>✨ {random.choice(affirmations)} ✨</h4>", unsafe_allow_html=True)
