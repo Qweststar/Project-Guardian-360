@@ -17,6 +17,7 @@ def get_guardian_wisdom():
             data = response.json()
             return f"“{data[0]['q']}” — {data[0]['a']}"
     except:
+        # Fallbacks for offline use
         fallbacks = [
             "“Consistency is the highest form of love.”",
             "“I am the calm in my child's storm.”",
@@ -27,22 +28,35 @@ def get_guardian_wisdom():
 # --- FORCED SUNSET EARTH & PURE BLACK TEXT THEME ---
 st.markdown("""
     <style>
+    /* Main Background: Light Auburn Brown / Tan */
     .stApp { background-color: #DDB892 !important; color: #000000 !important; }
+    
+    /* Sidebar: Deep Earthy Brown-Red */
     [data-testid="stSidebar"] { background-color: #6B4423 !important; color: #FFFFFF !important; }
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] label {
         color: #FFFFFF !important; font-weight: 700 !important;
     }
+    
+    /* Headers & Text */
     h1, h2, h3, h4 { color: #000000 !important; font-family: 'Inter', sans-serif; font-weight: 800 !important; }
     
     /* Selection Box (Deep Earthy Brown-Red) */
-    .stRadio { background-color: #6B4423 !important; padding: 15px; border-radius: 12px; border: 2px solid #4B3832; }
+    .stRadio { 
+        background-color: #6B4423 !important; 
+        padding: 15px; 
+        border-radius: 12px; 
+        border: 2px solid #4B3832; 
+    }
     .stRadio label { color: #FFFFFF !important; font-weight: 700 !important; }
     
+    /* Step Cards - High Contrast */
     .step-card {
         background: #EDE0D4; border-radius: 15px; padding: 20px;
         border: 2px solid #7F5539; margin-bottom: 20px;
         box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);
     }
+    
+    /* Wisdom Box Styling */
     .wisdom-box {
         background-color: rgba(107, 68, 35, 0.1);
         padding: 20px; border-radius: 12px;
@@ -55,7 +69,6 @@ st.markdown("""
 
 # --- CORE LOGIC ---
 def get_tiered_responses(user_input, age_group):
-    # Python is case sensitive, so we ensure input is handled consistently
     lookup = user_input.lower().strip()
     danger_zone = ["hurt", "kill", "suicide", "hit", "abuse", "beat", "punch"]
     if any(word in lookup for word in danger_zone):
@@ -70,7 +83,7 @@ def get_tiered_responses(user_input, age_group):
     
     teen_library = {
         "phone": ["Could we put the phones away so we can enjoy dinner together?", "The rule is no phones at the table. Please put it in the basket.", "I'll hold onto the phone until morning to help you reset."],
-        "room": ["I noticed the room needs some attention. Need a hand?", "The room needs to be clean by 6 PM to go out tonight.", "The room isn't ready. Plans for tonight are on hold until the job is done."],
+        "room": ["I noticed the room needs some attention. Need a hand?", "The room needs to be clean by 6 PM to go out tonight.", "The room isn't ready. Plans are on hold until the job is done."],
         "late": ["I noticed you were a bit late. Let's be mindful next time.", "Being late is a safety concern. We need to reset our trust.", "Curfew was broken. We'll stay home next weekend to rebuild trust."],
         "lying": ["I'm giving you a safe space to be honest right now.", "Lying makes the situation heavier. Let's fix this now.", "Trust is broken. Privilege is suspended while we rebuild your word."],
         "disrespect": ["I hear your frustration, but please communicate that respectfully.", "We can disagree, but you must remain respectful.", "Respect is required. [Privilege] is suspended until we can talk properly."]
@@ -92,7 +105,8 @@ st.title("Guardian Response Partner")
 # WISDOM BOX WITH AUTO-TIMER
 st.markdown(f'<div class="wisdom-box">{get_guardian_wisdom()}</div>', unsafe_allow_html=True)
 
-if st.button("Now let me give you a new perspective"):
+# THE UPDATED BUTTON
+if st.button("For Wisdom"):
     st.rerun()
 
 if grace_context == "Meltdown":
@@ -121,6 +135,6 @@ if user_input:
         if st.button("📝 Record Progress"):
             st.success(f"Great work maintaining the line with {partner_name}. 🌿")
 
-# BOTTOM AFFIRMATION (Also rotates every 10s)
-affirmations = ["I am the calm in my child's storm.", "Consistency is the highest form of love.", "I have the strength to be firm and the heart to be gracious."]
+# BOTTOM AFFIRMATIONS
+affirmations = ["I am the calm in my child's storm.", "Consistency is the highest form of love.", "I am raising a person, not managing a behavior."]
 st.markdown(f"<h4 style='text-align: center; margin-top: 50px;'>✨ {random.choice(affirmations)} ✨</h4>", unsafe_allow_html=True)
