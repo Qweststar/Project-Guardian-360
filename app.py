@@ -2,6 +2,7 @@ import streamlit as st
 import datetime
 import random
 import requests
+import urllib.parse
 from streamlit_autorefresh import st_autorefresh
 
 # --- DASHBOARD CONTROL ---
@@ -11,44 +12,39 @@ pause_wisdom = st.sidebar.toggle("Pause Wisdom Timer", value=False)
 if not pause_wisdom:
     st_autorefresh(interval=10000, key="wisdom_refresh")
 
-# --- LIVE WISDOM ENGINE ---
+# --- FIXED WISDOM ENGINE ---
 def fetch_zen_wisdom():
+    # Pre-defined fallbacks to prevent "NoneType" errors
+    fallbacks = [
+        ("“Consistency is the highest form of love.”", "— Guardian Principle"),
+        ("“I am the calm in my child's storm.”", "— Parent Affirmation"),
+        ("“The way we talk to our children becomes their inner voice.”", "— Peggy O'Mara")
+    ]
     try:
         url = f"https://zenquotes.io/api/random?cb={random.randint(1, 100000)}"
         response = requests.get(url, timeout=3)
         if response.status_code == 200:
             data = response.json()
-            return f"“{data[0]['q']}”", f"— {data[0]['a']}"
-    except:
-        return ("“Consistency is the highest form of love.”", "— Guardian Principle")
+            return str(data[0]['q']), f"— {data[0]['a']}"
+    except Exception:
+        pass
+    return random.choice(fallbacks) # Guaranteed to return two strings
 
-# --- THE ADVISOR ENGINE (New Capability) ---
+# --- THE ADVISOR ENGINE ---
 def get_advisor_guidance(query):
     query = query.lower().strip()
-    
-    # Example: How to be a better partner
-    if "partner" in query or "marriage" in query:
+    # Logic to identify broad questions vs specific behaviors
+    if any(word in query for word in ["partner", "marriage", "relationship", "how to be", "better"]):
         steps = [
             "Practice Active Listening: Dedicate 15 minutes daily to distraction-free talk.",
-            "The 5:1 Ratio: Ensure you have 5 positive interactions for every 1 conflict.",
-            "Establish the 'Unified Front': Discuss boundaries privately before enforcing them together."
+            "The 5:1 Ratio: Focus on 5 positive interactions for every 1 conflict.",
+            "Unified Front: Discuss family boundaries privately before enforcing them."
         ]
-        resources = "[The Gottman Institute](https://www.gottman.com) | [Greater Good Magazine](https://greatergood.berkeley.edu)"
-        return steps, resources
-
-    # Example: Handling Stress/Patience
-    elif "patience" in query or "better parent" in query:
-        steps = [
-            "Self-Regulation: Take 3 deep breaths before responding to a trigger.",
-            "Reframing: See the behavior as a 'call for help' rather than 'defiance'.",
-            "Repair: If you lose your cool, apologize and explain your feelings to the child."
-        ]
-        resources = "[Positive Discipline](https://www.positivediscipline.com) | [Aha! Parenting](https://www.ahaparenting.com)"
-        return steps, resources
-
+        yt_query = urllib.parse.quote(f"{query} seminars expert advice")
+        return steps, f"https://www.youtube.com/results?search_query={yt_query}"
     return None, None
 
-# --- THEME & INTERFACE STYLING ---
+# --- THEME & STYLING ---
 st.markdown("""
     <style>
     .stApp { background-color: #DDB892 !important; color: #000000 !important; }
@@ -60,7 +56,6 @@ st.markdown("""
         border-left: 12px solid #6B4423; display: flex; align-items: center;
         box-shadow: 0 6px 12px rgba(0,0,0,0.15); margin-bottom: 20px;
     }
-    .mentor-avatar { font-size: 50px; margin-right: 25px; }
     .stRadio { background-color: #6B4423 !important; padding: 20px; border-radius: 12px; border: 2px solid #4B3832; }
     .stRadio label { color: #FFFFFF !important; }
     .stTextInput input { background-color: #F5EBE0 !important; color: #000000 !important; border: 2px solid #6B4423 !important; font-weight: 700 !important; }
@@ -70,8 +65,20 @@ st.markdown("""
 
 # --- UI ---
 st.title("Guardian Response Partner")
-quote, author = fetch_zen_wisdom()
-st.markdown(f'<div class="wisdom-vault"><div class="mentor-avatar">🛡️</div><div class="wisdom-content"><p style="font-size:1.25rem; font-weight:800; font-style:italic;">{quote}</p><p style="font-weight:600;">{author}</p></div></div>', unsafe_allow_html=True)
+
+# FETCH WISDOM (Error-checked)
+quote_data = fetch_zen_wisdom()
+quote, author = quote_data
+
+st.markdown(f"""
+    <div class="wisdom-vault">
+        <div style="font-size:50px; margin-right:25px;">🛡️</div>
+        <div>
+            <p style="font-size:1.25rem; font-weight:800; font-style:italic; margin:0;">{quote}</p>
+            <p style="font-weight:600; margin-top:5px;">{author}</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 if st.button("For Wisdom"):
     st.rerun()
@@ -79,31 +86,21 @@ if st.button("For Wisdom"):
 st.divider()
 
 age = st.radio("Who are we talking with?", ["Child", "Teen"], horizontal=True)
-user_input = st.text_input("What is on your heart or what do you need advice on?", placeholder="e.g., How do I become a better partner?")
+user_input = st.text_input("What is on your heart?", placeholder="Ask a question or report a behavior...")
 
 if user_input:
-    # Check if it's a general advice question
-    advice_steps, resources = get_advisor_guidance(user_input)
+    advice_steps, yt_link = get_advisor_guidance(user_input)
     
     if advice_steps:
         st.markdown(f"### Guidance for: *{user_input}*")
         c1, c2, c3 = st.columns(3)
-        with c1:
-            st.markdown(f'<div class="step-card" style="border-left: 8px solid #B5838D;"><h4>Step 1</h4><p>{advice_steps[0]}</p></div>', unsafe_allow_html=True)
-        with col2: # Fixed from c2 to col2 if using standard column naming, but keeping c2 for your code consistency
-            st.markdown(f'<div class="step-card" style="border-left: 8px solid #E5989B;"><h4>Step 2</h4><p>{advice_steps[1]}</p></div>', unsafe_allow_html=True)
-        with c3:
-            st.markdown(f'<div class="step-card" style="border-left: 8px solid #6D597A;"><h4>Direct Line</h4><p>{advice_steps[2]}</p></div>', unsafe_allow_html=True)
-        st.info(f"📚 **Recommended Resources:** {resources}")
+        with c1: st.markdown(f'<div class="step-card" style="border-left: 8px solid #B5838D;"><h4>Step 1</h4><p>{advice_steps[0]}</p></div>', unsafe_allow_html=True)
+        with c2: st.markdown(f'<div class="step-card" style="border-left: 8px solid #E5989B;"><h4>Step 2</h4><p>{advice_steps[1]}</p></div>', unsafe_allow_html=True)
+        with c3: st.markdown(f'<div class="step-card" style="border-left: 8px solid #6D597A;"><h4>Direct Line</h4><p>{advice_steps[2]}</p></div>', unsafe_allow_html=True)
+        st.link_button("🎥 Watch Expert Seminars on this Topic", yt_link)
     else:
-        # Behavioral Logic
-        child_map = {"hit": ["Helping hands.", "No hitting.", "Play pause."], "lying": ["Tell the truth.", "I need honesty.", "Repairing trust."]}
-        teen_map = {"late": ["Check the time.", "Safety concern.", "Curfew reset."], "disrespect": ["Tone check.", "Listen when calm.", "Respect required."]}
-        lib = teen_map if age == "Teen" else child_map
-        res = [f"Step 1 for {user_input}", f"Step 2 for {user_input}", f"Direct Line for {user_input}"]
-        for k, v in lib.items():
-            if k in user_input.lower(): res = v
-        
+        # Behavioral Logic Fallback
+        res = [f"Gentle redirection for {user_input}", f"Firm boundary for {user_input}", f"Direct Line for {user_input}"]
         st.divider()
         c1, c2, c3 = st.columns(3)
         with c1: st.markdown(f'<div class="step-card" style="border-left: 8px solid #B5838D;"><h4>Step 1</h4><p>{res[0]}</p></div>', unsafe_allow_html=True)
