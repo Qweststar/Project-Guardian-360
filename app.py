@@ -4,14 +4,19 @@ import random
 import requests
 from streamlit_autorefresh import st_autorefresh
 
-# --- AUTOMATED REFRESH TIMER (10 Seconds) ---
-# This key ensures the wisdom block updates independently
-st_autorefresh(interval=10000, key="wisdom_refresh")
+# --- DASHBOARD CONTROL ---
+st.sidebar.title("🛡️ Guardian 360")
+pause_wisdom = st.sidebar.toggle("Pause Wisdom Timer", value=False)
+
+# --- 10-SECOND AUTO-REFRESH TIMER ---
+# Only runs if the toggle is NOT checked
+if not pause_wisdom:
+    st_autorefresh(interval=10000, key="wisdom_refresh")
 
 # --- LIVE WISDOM ENGINE ---
 def fetch_zen_wisdom():
     try:
-        # Cache-buster added to URL to force ZenQuotes to provide a new random quote
+        # Cache-buster forces a fresh pull from the ZenQuotes API
         url = f"https://zenquotes.io/api/random?cb={random.randint(1, 100000)}"
         response = requests.get(url, timeout=3)
         if response.status_code == 200:
@@ -38,15 +43,15 @@ st.markdown("""
     [data-testid="stSidebar"] { background-color: #6B4423 !important; }
     [data-testid="stSidebar"] * { color: #FFFFFF !important; font-weight: 700 !important; }
     
-    /* Typography */
+    /* Headers & Text Formatting */
     h1, h2, h3, h4 { color: #000000 !important; font-weight: 800 !important; }
 
-    /* THE WISDOM VAULT - Solid Background, No Fading */
+    /* THE WISDOM VAULT - Solid High-Contrast Styling */
     .wisdom-vault {
-        background-color: #EDE0D4 !important; /* Solid Sand/Beige */
+        background-color: #EDE0D4 !important; 
         padding: 25px;
         border-radius: 15px;
-        border-left: 12px solid #6B4423; /* Deep Red-Brown Accent */
+        border-left: 12px solid #6B4423; 
         display: flex;
         align-items: center;
         box-shadow: 0 6px 12px rgba(0,0,0,0.15);
@@ -61,21 +66,30 @@ st.markdown("""
     .quote-text { font-size: 1.25rem; font-weight: 800; font-style: italic; line-height: 1.4; margin: 0; }
     .author-text { font-size: 1rem; font-weight: 600; margin-top: 5px; opacity: 0.8; }
 
-    /* Radio/Input Styling */
+    /* Radio/Input Styling (Deep Earthy Brown-Red) */
     .stRadio { background-color: #6B4423 !important; padding: 20px; border-radius: 12px; border: 2px solid #4B3832; }
     .stRadio label { color: #FFFFFF !important; }
-    .stTextInput input { background-color: #F5EBE0 !important; color: #000000 !important; border: 2px solid #6B4423 !important; }
+    
+    /* Input Field Visibility */
+    .stTextInput input { 
+        background-color: #F5EBE0 !important; 
+        color: #000000 !important; 
+        border: 2px solid #6B4423 !important; 
+        font-weight: 700 !important;
+    }
     
     /* Response Cards */
     .step-card {
-        background: #EDE0D4; border-radius: 15px; padding: 20px;
-        border: 2px solid #7F5539; margin-bottom: 15px;
+        background: #EDE0D4; 
+        border-radius: 15px; 
+        padding: 20px;
+        border: 2px solid #7F5539; 
+        margin-bottom: 15px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- SIDEBAR ---
-st.sidebar.title("🛡️ Guardian 360")
+# --- SIDEBAR INPUTS ---
 partner_name = st.sidebar.text_input("Partner Name", "Partner")
 grace_state = st.sidebar.select_slider("Child's State", options=["Calm", "Tired", "Stressed", "Meltdown"])
 
@@ -100,25 +114,27 @@ if st.button("For Wisdom"):
     st.rerun()
 
 if grace_state == "Meltdown":
-    st.info("✨ **Grace Note:** Their system is offline. Prioritize Step 1 Connection.")
+    st.info("✨ **Grace Note:** Connection first. Focus only on Step 1 right now.")
 
 st.divider()
 
 # AGE SELECTION & INPUT
 age = st.radio("Who are we talking with?", ["Child", "Teen"], horizontal=True)
-user_input = st.text_input("What's on your heart?", placeholder="Type and press Enter...")
+user_input = st.text_input("What's on your heart? (Type and press Enter)", placeholder="e.g., They are being disrespectful...")
 
 # --- RESPONSE LOGIC ---
 def get_responses(text, age_val):
     val = text.lower().strip()
-    # Logic remains consistent with tiered system requested previously
+    # Logic remains consistent with the tiered system requested
     child_map = {
         "hit": ["Let's use helping hands.", "No hitting. If it happens again, playtime ends.", "You chose to hit. We are pausing now to calm down."],
-        "lying": ["I'm ready for the truth.", "I can only help when you are honest.", "Trust is broken. We're pausing until we repair it."]
+        "lying": ["I'm ready for the truth.", "I can only help when you are honest.", "Trust is broken. We're pausing until we repair it."],
+        "running": ["I'd love to see you walk inside.", "Walking feet only. If you run again, let's take a reset.", "Since safety is hard now, we're pausing this activity."]
     }
     teen_map = {
         "late": ["Let's be mindful of time.", "Being late is a safety issue. Trust needs a reset.", "Curfew broken. Staying home next weekend to rebuild trust."],
-        "disrespect": ["Please use a respectful tone.", "I'll listen when you are calm. Disrespect ends the talk.", "Respect is required. [Privilege] suspended until we talk properly."]
+        "disrespect": ["Please use a respectful tone.", "I'll listen when you are calm. Disrespect ends the talk.", "Respect is required. [Privilege] suspended until we talk properly."],
+        "phone": ["Let's put the phones away for dinner.", "The rule is no phones at the table. Basket, please.", "I'll hold the phone until morning to help you reset."]
     }
     
     lib = teen_map if age_val == "Teen" else child_map
@@ -136,6 +152,9 @@ if user_input:
         st.markdown(f'<div class="step-card" style="border-left: 8px solid #E5989B;"><h4>Step 2</h4><p>{res[1]}</p></div>', unsafe_allow_html=True)
     with c3:
         st.markdown(f'<div class="step-card" style="border-left: 8px solid #6D597A;"><h4>Direct Line</h4><p>{res[2]}</p></div>', unsafe_allow_html=True)
+    
+    if st.button("📝 Record Progress"):
+        st.success(f"Great work maintaining the line with {partner_name}. 🌿")
 
-# BOTTOM AFFIRMATION
+# BOTTOM AFFIRMATION (Static for grounding)
 st.markdown("<br><h4 style='text-align: center;'>✨ I am the calm in my child's storm. ✨</h4>", unsafe_allow_html=True)
