@@ -7,6 +7,7 @@ def guardian_hybrid_brain(user_input, age_group, partner_name, grace_level):
     Combines your specific taught library with an AI fallback.
     Includes safety guardrails as the first priority.
     """
+    # Python is case-sensitive, so we normalize for the lookup
     lookup = user_input.lower().strip()
 
     # 1. MANDATORY SAFETY GUARDRAILS
@@ -42,8 +43,7 @@ def guardian_hybrid_brain(user_input, age_group, partner_name, grace_level):
 
     # 3. AI BRAIN FALLBACK (Non-Binary Logic: Firmness + Grace)
     # This prepares the prompt for the AI to follow your philosophy.
-    # Note: This will activate fully once an API key is connected.
-    return (f"🧠 (AI Brain): I hear that you're dealing with '{user_input}'. "
+    return (f"🧠 (AI Brain Placeholder): I hear that you're dealing with '{user_input}'. "
             f"Given the {grace_level} stress level, I suggest focusing on a calm boundary "
             f"that shows respect for both yourself and {partner_name}.")
 
@@ -76,21 +76,24 @@ st.caption(f"Status: Unified Front with {partner_name} | Role: {parent_role}")
 if grace_level == "Meltdown":
     st.error("🚨 **GRACE ALERT:** The child's nervous system is overwhelmed. Discipline will not work right now. Focus on safety, calm presence, and physical comfort first.")
 
-tabs = st.tabs(["Direct Response", "Accountability", "Unified Front", "Knowledge Base"])
+tabs = st.tabs(["Direct Response", "Accountability", "Unified Front", "Hard Truths"])
 
 with tabs[0]:
     st.header("Quick Rephrase")
-    st.write("Translate frustration into positive, firm reinforcement.")
-    age = st.radio("Age Group", ["Child", "Teen"], horizontal=True)
-    user_input = st.text_input("What are you about to say?", placeholder="e.g., They won't get off the phone!")
+    st.write("What are you about to say?") # Label for clarity
+    age = st.radio("Select Age Group", ["Child", "Teen"], horizontal=True)
+    
+    # This is the "What are you about to say" portion
+    user_input = st.text_input("Enter your phrase here:", placeholder="e.g., Stop running!")
     
     if st.button("Generate Guardian Response"):
         if user_input:
+            # This triggers the function and shows the result
             result = guardian_hybrid_brain(user_input, age, partner_name, grace_level)
             st.subheader("The Recommended Path:")
             st.success(result)
         else:
-            st.warning("Please enter what's happening to get a response.")
+            st.warning("Please type something in the box above so I can help you rephrase it.")
 
 with tabs[1]:
     st.header("Parental Accountability")
