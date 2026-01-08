@@ -95,4 +95,66 @@ def get_tiered_responses(user_input, age_group):
     
     teen_library = {
         "phone": ["Could we put the phones away so we can enjoy dinner together?", "The rule is no phones at the table. Please put it in the basket now.", "I'll hold onto the phone until tomorrow morning to help you reset."],
-        "room": ["I noticed the room needs some attention. Need a hand getting started?", "The room needs to be clean by 6 PM to go out. How
+        "room": ["I noticed the room needs some attention. Need a hand getting started?", "The room needs to be clean by 6 PM to go out. How's it coming?", "The room isn't ready. Plans for tonight are on hold until the job is done."],
+        "late": ["I noticed you were a bit late. Let's be mindful of the time next time.", "Coming home past curfew is a safety concern. We need to reset our trust.", "You broke curfew. We'll stay home next weekend to rebuild that trust."],
+        "lying": ["I'm giving you a safe space to be honest right now.", "I already know the truth. Lying just makes the situation heavier.", "Our trust is broken. Privilege is suspended while we rebuild your word."],
+        "disrespect": ["I hear your frustration, but please communicate that respectfully.", "We can disagree, but you must remain respectful.", "Respect is a requirement. [Privilege] is suspended until we communicate properly."]
+    }
+
+    library = teen_library if age_group == "Teen" else child_library
+    for trigger, responses in library.items():
+        if trigger in lookup:
+            return responses, None
+            
+    return [f"Step 1: Gentle redirection for '{user_input}'.", f"Step 2: Firm expectation for '{user_input}'.", f"Step 3: Direct Line consequence for '{user_input}'."], None
+
+# --- UI CONFIGURATION ---
+
+st.sidebar.title("🛡️ Guardian 360")
+st.sidebar.markdown("*Firmness and Grace.*")
+partner_name = st.sidebar.text_input("Partner Name", "Partner")
+grace_context = st.sidebar.select_slider("How is your child feeling?", options=["Calm", "Tired", "Stressed", "Meltdown"])
+
+st.title("Guardian Response Partner")
+st.markdown("### Take a breath. You've got this. 🌿")
+
+# Grace Consultant
+if grace_context == "Meltdown":
+    st.info("✨ **Grace Note:** The child is overwhelmed. Focus on Step 1 only.")
+elif grace_context == "Stressed":
+    st.info("✨ **Grace Note:** Patience is key. Try Step 1 or 2 first.")
+
+st.divider()
+
+# High-Visibility Selection
+age = st.radio("Who are we talking with?", ["Child", "Teen"], horizontal=True)
+
+user_input = st.text_input("What's on your heart? (Type and Enter)", placeholder="Type here...")
+
+if user_input:
+    responses, safety_error = get_tiered_responses(user_input, age)
+    
+    if safety_error:
+        st.error(safety_error)
+    else:
+        st.divider()
+        st.markdown("### The Path Forward")
+        
+        # Displaying responses in High-Contrast Autumn Cards
+        st.markdown(f"""
+        <div class="step-card" style="border-left: 8px solid #344E41;">
+            <h4 style='margin: 0;'>Step 1: The Gentle Start</h4>
+            <p style='font-size: 1.15rem;'>{responses[0]}</p>
+        </div>
+        <div class="step-card" style="border-left: 8px solid #BC6C25;">
+            <h4 style='margin: 0;'>Step 2: The Firm Expectation</h4>
+            <p style='font-size: 1.15rem;'>{responses[1]}</p>
+        </div>
+        <div class="step-card" style="border-left: 8px solid #606C38;">
+            <h4 style='margin: 0;'>Step 3: The Direct Line</h4>
+            <p style='font-size: 1.15rem;'>{responses[2]}</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("📝 Record Progress"):
+            st.toast("Saved to your family history. 🌿")
