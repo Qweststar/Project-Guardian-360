@@ -10,35 +10,36 @@ st.markdown("""
         color: #000000 !important; 
     }
     
-    /* Sidebar: Deep Terracotta (Anchoring the app) */
+    /* Sidebar: Deep Earthy Brown-Red (Deep Terracotta) */
     [data-testid="stSidebar"] {
-        background-color: #6B4423 !important; /* Deep Earthy Brown-Red */
-        color: #000000 !important;
+        background-color: #6B4423 !important; 
+        color: #FFFFFF !important;
     }
 
-    /* Force all sidebar labels and text to Pure Black */
+    /* Force all sidebar labels and text to White for contrast against dark red */
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] label {
-        color: #000000 !important;
+        color: #FFFFFF !important;
         font-weight: 700 !important;
     }
     
-    /* Headers: Deep Terracotta Accent */
+    /* Headers: Force to Black for high readability */
     h1, h2, h3, h4 {
         color: #000000 !important; 
         font-family: 'Inter', sans-serif;
         font-weight: 800 !important;
     }
 
-    /* Selection Container (Child/Teen) - Dusty Rose Background */
+    /* Selection Container (Child/Teen) - Deep Earthy Brown-Red */
     .stRadio {
-        background-color: #E5989B !important; /* Dusty Rose */
+        background-color: #6B4423 !important; 
         padding: 15px;
         border-radius: 12px;
-        border: 2px solid #B5838D;
+        border: 2px solid #4B3832;
     }
     
+    /* Force Radio Button Text to White against the dark background */
     .stRadio label {
-        color: #000000 !important;
+        color: #FFFFFF !important;
         font-weight: 700 !important;
     }
 
@@ -52,7 +53,7 @@ st.markdown("""
         box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    /* Pure Black Text for instructions and headers inside cards */
+    /* Pure Black Text for instructions inside cards */
     .step-card p, .step-card h4 {
         color: #000000 !important;
         font-weight: 500 !important;
@@ -62,15 +63,15 @@ st.markdown("""
     .stTextInput input {
         background-color: #F5EBE0 !important;
         color: #000000 !important;
-        border: 2px solid #B5838D !important;
+        border: 2px solid #6B4423 !important;
         font-weight: 600 !important;
     }
     
     /* Alerts - Muted Sunset Clay */
     .stAlert {
-        background-color: #FFB5A7 !important;
+        background-color: #E5989B !important; 
         color: #000000 !important;
-        border: 1px solid #F08080 !important;
+        border: 1px solid #B5838D !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -78,17 +79,17 @@ st.markdown("""
 # --- CORE LOGIC (Step 1, 2, Direct Line) ---
 
 def get_tiered_responses(user_input, age_group):
-    # Normalize input: Python is case-sensitive, so we use .lower()
+    # Python is case-sensitive, so we normalize for reliable matching
     lookup = user_input.lower().strip()
     
     # SAFETY GATE
     danger_zone = ["hurt", "kill", "suicide", "hit", "abuse", "beat", "punch"]
     if any(word in lookup for word in danger_zone):
-        return None, "✋ **Let's Pause.** Safety is the foundation of everything. Please reach out for professional support at 988 if things feel out of control."
+        return None, "✋ **Safety Alert.** Please pause. Safety is the foundation of our work. Reach out to 988 if things feel out of control."
 
     # THE GUARDIAN LIBRARY
     child_library = {
-        "running": ["I'd love to see you walk inside, please.", "Walking feet only. If you run again, let's take a reset break.", "Since safety is hard right now, we’re going to pause this activity."],
+        "running": ["I'd love to see you walk inside, please.", "Walking feet only. If you run again, we'll take a reset break.", "Since safety is hard right now, we’re going to pause this activity."],
         "hit": ["Let's use our helping hands.", "No hitting. If it happens again, the play session ends.", "You chose to hit, so playtime is over. Let's find a way to calm down together."],
         "lying": ["It feels like there's more to the story. I'm ready for the truth.", "I can only help you when I know what really happened.", "Trust is the anchor. Because of the dishonesty, we're pausing until we repair it."],
         "disrespect": ["I hear your frustration, but let's try a more respectful tone.", "I'm here to listen, but only when you use a calm voice.", "I value our relationship too much for this tone. We'll talk again when you can lead with respect."]
@@ -117,17 +118,17 @@ partner_name = st.sidebar.text_input("Partner Name", "Partner")
 grace_context = st.sidebar.select_slider("How is your child feeling?", options=["Calm", "Tired", "Stressed", "Meltdown"])
 
 st.title("Guardian Response Partner")
-st.markdown("### Take a breath. Everything is going to be okay. 🌿")
+st.markdown("### Take a breath. You've got this. 🌿")
 
 # Grace Consultant
 if grace_context == "Meltdown":
     st.info("✨ **Grace Note:** Connection first. Focus only on Step 1 right now.")
 elif grace_context == "Stressed":
-    st.info("✨ **Grace Note:** Keep things low-key. Try Step 1 or 2 first.")
+    st.info("✨ **Grace Note:** Patience is key. Try Step 1 or 2 first.")
 
 st.divider()
 
-# High-Visibility Selection
+# High-Visibility Selection in the new Deep Earthy Brown-Red
 age = st.radio("Who are we talking with?", ["Child", "Teen"], horizontal=True)
 
 user_input = st.text_input("What's on your heart? (Type and Enter)", placeholder="Type here...")
@@ -141,7 +142,7 @@ if user_input:
         st.divider()
         st.markdown("### The Path Forward")
         
-        # Displaying responses in High-Contrast Sunset Earth Cards
+        # Displaying responses in High-Contrast Step Cards
         st.markdown(f"""
         <div class="step-card" style="border-left: 10px solid #B5838D;">
             <h4 style='margin: 0;'>Step 1: The Gentle Start</h4>
