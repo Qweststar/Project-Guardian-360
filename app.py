@@ -1,61 +1,61 @@
 import streamlit as st
 import datetime
 
-# --- FORCED OLIVE & SLATE CONTRAST THEME ---
+# --- FORCED WARM EARTH & OLIVE ACCENT THEME ---
 st.markdown("""
     <style>
-    /* Force Deep Olive/Forest Background */
+    /* 70% of the page: Warm Beige / Sand Background */
     .stApp {
-        background-color: #1B261D !important; /* Deep Moss/Olive */
-        color: #ECF3EC !important; /* Stone/Light Sage Text */
+        background-color: #F2E9E4 !important; /* Soft Sand/Beige */
+        color: #222222 !important; /* High contrast Dark Charcoal text */
     }
     
-    /* Sidebar Styling - Slightly lighter olive for depth */
+    /* Sidebar Styling - Deep Olive for Anchor */
     [data-testid="stSidebar"] {
-        background-color: #2D3A2F !important;
+        background-color: #354F52 !important; /* Deep Forest/Olive */
         color: #F8FAF8 !important;
     }
     
-    /* SAGE GREEN HEADERS */
+    /* OLIVE ACCENT HEADERS */
     h1, h2, h3, h4 {
-        color: #A3B18A !important; /* Sage Green */
+        color: #52796F !important; /* Muted Olive Green */
         font-family: 'Inter', sans-serif;
     }
 
-    /* HIGH-CONTRAST SELECTION CONTAINER (Child/Teen) */
+    /* SELECTION CONTAINER (Child/Teen) - Olive Accent */
     .stRadio {
-        background-color: #2D3A2F;
+        background-color: #CAD2C5; /* Light Sage/Beige Mix */
         padding: 15px;
         border-radius: 12px;
-        border: 1px solid #588157; /* Olive accent border */
+        border: 2px solid #84A98C; /* Olive border */
     }
     
     .stRadio [data-testid="stWidgetLabel"] {
-        color: #DAD7CD !important;
+        color: #2F3E46 !important;
         font-weight: 700 !important;
     }
 
-    /* STEP CARDS - Grounded Earth Tones */
+    /* STEP CARDS - Soft Beige with Olive Borders */
     .step-card {
-        background: #2D3A2F;
+        background: #FFFFFF; /* Pure white for readability */
         border-radius: 12px;
         padding: 20px;
-        border: 1px solid #3A5A40;
+        border: 1px solid #D1C7C1;
         margin-bottom: 20px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     }
     
-    /* Input Box Visibility - Slate Green */
+    /* Input Box Visibility */
     .stTextInput input {
-        background-color: #1B261D !important;
-        color: #DAD7CD !important;
-        border: 1px solid #588157 !important;
+        background-color: #FFFFFF !important;
+        color: #222222 !important;
+        border: 2px solid #CAD2C5 !important;
     }
     
     /* Alert Overrides */
     .stAlert {
-        background-color: #344E41 !important;
-        color: #ECF3EC !important;
+        background-color: #CAD2C5 !important;
+        color: #2F3E46 !important;
         border-radius: 10px !important;
     }
     </style>
@@ -64,13 +64,13 @@ st.markdown("""
 # --- CORE LOGIC ---
 
 def get_tiered_responses(user_input, age_group):
-    # Python is case-sensitive, normalizing to lowercase for better matching
+    # Python is case-sensitive: normalizing to lowercase for better matching
     lookup = user_input.lower().strip()
     
     # SAFETY GATE
     danger_zone = ["hurt", "kill", "suicide", "hit", "abuse", "beat", "punch"]
     if any(word in lookup for word in danger_zone):
-        return None, "✋ **Guardian Safety Alert.** We prioritize safety above all. Please reach out to 988 or local emergency services if you are in crisis."
+        return None, "✋ **Safety First.** If things feel out of control, please pause and reach out for help at 988. We are here to support a safe environment."
 
     # THE GUARDIAN LIBRARY
     child_library = {
@@ -127,19 +127,19 @@ if user_input:
         st.divider()
         st.markdown("### The Path Forward")
         
-        # Displaying responses in High-Contrast Olive/Sage Cards
+        # Displaying responses in High-Contrast Earth/Olive Cards
         st.markdown(f"""
-        <div class="step-card" style="border-top: 4px solid #A3B18A;">
-            <h4 style='margin: 0;'>Step 1: The Gentle Start</h4>
-            <p style='color: #DAD7CD; font-size: 1.1rem;'>{responses[0]}</p>
+        <div class="step-card" style="border-left: 6px solid #84A98C;">
+            <h4 style='margin: 0; color: #52796F;'>Step 1: The Gentle Start</h4>
+            <p style='color: #222222; font-size: 1.1rem;'>{responses[0]}</p>
         </div>
-        <div class="step-card" style="border-top: 4px solid #E9C46A;">
-            <h4 style='margin: 0; color: #E9C46A;'>Step 2: The Firm Expectation</h4>
-            <p style='color: #F4E1D2; font-size: 1.1rem;'>{responses[1]}</p>
+        <div class="step-card" style="border-left: 6px solid #E9C46A;">
+            <h4 style='margin: 0; color: #B08E35;'>Step 2: The Firm Expectation</h4>
+            <p style='color: #222222; font-size: 1.1rem;'>{responses[1]}</p>
         </div>
-        <div class="step-card" style="border-top: 4px solid #E76F51;">
-            <h4 style='margin: 0; color: #E76F51;'>Step 3: The Direct Line</h4>
-            <p style='color: #FAD2E1; font-size: 1.1rem;'>{responses[2]}</p>
+        <div class="step-card" style="border-left: 6px solid #E76F51;">
+            <h4 style='margin: 0; color: #AF4D36;'>Step 3: The Direct Line</h4>
+            <p style='color: #222222; font-size: 1.1rem;'>{responses[2]}</p>
         </div>
         """, unsafe_allow_html=True)
         
