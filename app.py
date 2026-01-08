@@ -1,61 +1,61 @@
 import streamlit as st
 import datetime
 
-# --- FORCED DARK MODE & SKY BLUE PALETTE ---
+# --- FORCED OLIVE & SLATE CONTRAST THEME ---
 st.markdown("""
     <style>
-    /* Force Dark Mode Background */
+    /* Force Deep Olive/Forest Background */
     .stApp {
-        background-color: #0F172A !important; /* Deep Night Blue/Stone */
-        color: #E2E8F0 !important; /* Soft White Text */
+        background-color: #1B261D !important; /* Deep Moss/Olive */
+        color: #ECF3EC !important; /* Stone/Light Sage Text */
     }
     
-    /* Sidebar Styling */
+    /* Sidebar Styling - Slightly lighter olive for depth */
     [data-testid="stSidebar"] {
-        background-color: #1E293B !important;
-        color: #F8FAFC !important;
+        background-color: #2D3A2F !important;
+        color: #F8FAF8 !important;
     }
     
-    /* SKY BLUE HEADERS */
+    /* SAGE GREEN HEADERS */
     h1, h2, h3, h4 {
-        color: #7DD3FC !important; /* Sky Blue */
+        color: #A3B18A !important; /* Sage Green */
         font-family: 'Inter', sans-serif;
     }
 
-    /* FIXING THE RADIO BUTTONS (Child/Teen) */
-    /* We wrap them in a high-contrast container for visibility */
+    /* HIGH-CONTRAST SELECTION CONTAINER (Child/Teen) */
     .stRadio {
-        background-color: #1E293B;
+        background-color: #2D3A2F;
         padding: 15px;
         border-radius: 12px;
-        border: 1px solid #38B2AC;
+        border: 1px solid #588157; /* Olive accent border */
     }
     
     .stRadio [data-testid="stWidgetLabel"] {
-        color: #7DD3FC !important;
+        color: #DAD7CD !important;
         font-weight: 700 !important;
     }
 
-    /* STEP CARDS - High Contrast for Dark Mode */
+    /* STEP CARDS - Grounded Earth Tones */
     .step-card {
-        background: #1E293B;
+        background: #2D3A2F;
         border-radius: 12px;
         padding: 20px;
-        border: 1px solid #334155;
+        border: 1px solid #3A5A40;
         margin-bottom: 20px;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
     }
     
-    /* Input Box Visibility */
+    /* Input Box Visibility - Slate Green */
     .stTextInput input {
-        background-color: #0F172A !important;
-        color: #7DD3FC !important;
-        border: 1px solid #334155 !important;
+        background-color: #1B261D !important;
+        color: #DAD7CD !important;
+        border: 1px solid #588157 !important;
     }
     
-    /* Success/Warning/Error Overrides for the Sky palette */
+    /* Alert Overrides */
     .stAlert {
-        background-color: #1E293B !important;
+        background-color: #344E41 !important;
+        color: #ECF3EC !important;
         border-radius: 10px !important;
     }
     </style>
@@ -64,28 +64,28 @@ st.markdown("""
 # --- CORE LOGIC ---
 
 def get_tiered_responses(user_input, age_group):
-    # Case sensitivity check: Python is case-sensitive, so we use .lower()
+    # Python is case-sensitive, normalizing to lowercase for better matching
     lookup = user_input.lower().strip()
     
     # SAFETY GATE
     danger_zone = ["hurt", "kill", "suicide", "hit", "abuse", "beat", "punch"]
     if any(word in lookup for word in danger_zone):
-        return None, "✋ **Let's Pause.** Safety comes first. Please reach out for support at 988 or local emergency services."
+        return None, "✋ **Guardian Safety Alert.** We prioritize safety above all. Please reach out to 988 or local emergency services if you are in crisis."
 
     # THE GUARDIAN LIBRARY
     child_library = {
-        "running": ["I'd love to see you walk inside, please.", "Walking feet only. If you run again, we'll take a reset break.", "Since safety is hard right now, we’re going to pause this activity."],
-        "hit": ["Let's use our helping hands.", "No hitting. If it happens again, the play session ends.", "You chose to hit, so playtime is over. Let's calm down together."],
-        "lying": ["It feels like there's more to the story. I'm ready for the truth.", "I can only help you when I know the real story.", "Trust is our anchor. Because of the dishonesty, we're pausing until we repair it."],
-        "disrespect": ["Let's try a more respectful tone, please.", "I'll listen when you use a calm voice. If this continues, I'll step away.", "I value us too much for this tone. We'll talk when you can lead with respect."]
+        "running": ["I'd love to see you walk inside, please.", "Walking feet only. If you run again, let's take a reset break.", "Since safety is hard right now, we’re going to pause this activity."],
+        "hit": ["Let's use our helping hands.", "No hitting. If it happens again, the play session ends.", "You chose to hit, so playtime is over. Let's find a way to calm down together."],
+        "lying": ["It feels like there's more to the story. I'm ready for the truth.", "I can only help you when I know what really happened.", "Trust is the anchor. Because of the dishonesty, we're pausing until we repair it."],
+        "disrespect": ["I hear your frustration, but let's try a more respectful tone.", "I'm here to listen, but only when you use a calm voice.", "I value our relationship too much for this tone. We'll talk again when you can lead with respect."]
     }
     
     teen_library = {
-        "phone": ["Could we put the phones away so we can enjoy dinner?", "The rule is no phones at the table. Please put it in the basket now.", "I'll hold onto the phone until morning to help you reset."],
-        "room": ["Need a hand getting started on your room?", "The room needs to be clean by 6 PM to go out. How's it coming?", "The room isn't ready. Plans for tonight are on hold until it's done."],
-        "late": ["I noticed you were a bit late. Let's be mindful next time.", "Being late is a safety concern. We need to reset our trust.", "You broke curfew. We'll stay home next weekend to rebuild that trust."],
-        "lying": ["I'm giving you a safe space to be honest right now.", "I already know the truth. Lying just makes the situation heavier.", "Trust is broken. Privilege is suspended while we rebuild your word."],
-        "disrespect": ["I hear your frustration, but please communicate that respectfully.", "We can disagree, but you must remain respectful.", "Respect is required. [Privilege] is suspended until we communicate properly."]
+        "phone": ["Could we put the phones away so we can enjoy dinner together?", "The rule is no phones at the table. Please put it in the basket now.", "I'll hold onto the phone until tomorrow morning to help you reset."],
+        "room": ["I noticed the room needs some attention. Need a hand getting started?", "The room needs to be clean by 6 PM to go out. How's it coming?", "The room isn't ready. Plans for tonight are on hold until the job is done."],
+        "late": ["I noticed you were a bit late. Let's be mindful of the time next time.", "Coming home past curfew is a safety concern. We need to reset our trust.", "You broke curfew. We'll stay home next weekend to rebuild that trust."],
+        "lying": ["I'm giving you a safe space to be honest right now.", "I already know the truth. Lying just makes the situation heavier.", "Our trust is broken. Privilege is suspended while we rebuild your word."],
+        "disrespect": ["I hear your frustration, but please communicate that respectfully.", "We can disagree, but you must remain respectful.", "Respect is a requirement. [Privilege] is suspended until we communicate properly."]
     }
 
     library = teen_library if age_group == "Teen" else child_library
@@ -93,7 +93,7 @@ def get_tiered_responses(user_input, age_group):
         if trigger in lookup:
             return responses, None
             
-    return [f"Gentle redirection for '{user_input}'.", f"Firm expectation for '{user_input}'.", f"Direct Line: Enforce consequence for '{user_input}'."], None
+    return [f"Try a gentle redirection regarding '{user_input}'.", f"State a clear, firm expectation for '{user_input}'.", f"Direct Line: Enforce the consequence for '{user_input}'."], None
 
 # --- UI CONFIGURATION ---
 
@@ -107,9 +107,9 @@ st.markdown("#### Take a breath. Everything is going to be okay. 🌿")
 
 # Grace Consultant
 if grace_context == "Meltdown":
-    st.info("✨ **Grace Note:** Focus only on Step 1 right now.")
+    st.info("✨ **Grace Note:** Focus only on Step 1 right now. Prioritize connection.")
 elif grace_context == "Stressed":
-    st.info("✨ **Grace Note:** Keep things low-key. Step 1 or 2 is best.")
+    st.info("✨ **Grace Note:** Keep things low-key. Step 1 or 2 is likely enough.")
 
 st.divider()
 
@@ -127,21 +127,21 @@ if user_input:
         st.divider()
         st.markdown("### The Path Forward")
         
-        # Displaying responses in High-Contrast Sky Blue Cards
+        # Displaying responses in High-Contrast Olive/Sage Cards
         st.markdown(f"""
-        <div class="step-card" style="border-top: 4px solid #38B2AC;">
+        <div class="step-card" style="border-top: 4px solid #A3B18A;">
             <h4 style='margin: 0;'>Step 1: The Gentle Start</h4>
-            <p style='color: #BAE6FD; font-size: 1.1rem;'>{responses[0]}</p>
+            <p style='color: #DAD7CD; font-size: 1.1rem;'>{responses[0]}</p>
         </div>
-        <div class="step-card" style="border-top: 4px solid #F6AD55;">
-            <h4 style='margin: 0;'>Step 2: The Firm Expectation</h4>
-            <p style='color: #FFEDD5; font-size: 1.1rem;'>{responses[1]}</p>
+        <div class="step-card" style="border-top: 4px solid #E9C46A;">
+            <h4 style='margin: 0; color: #E9C46A;'>Step 2: The Firm Expectation</h4>
+            <p style='color: #F4E1D2; font-size: 1.1rem;'>{responses[1]}</p>
         </div>
-        <div class="step-card" style="border-top: 4px solid #F56565;">
-            <h4 style='margin: 0;'>Step 3: The Direct Line</h4>
-            <p style='color: #FEE2E2; font-size: 1.1rem;'>{responses[2]}</p>
+        <div class="step-card" style="border-top: 4px solid #E76F51;">
+            <h4 style='margin: 0; color: #E76F51;'>Step 3: The Direct Line</h4>
+            <p style='color: #FAD2E1; font-size: 1.1rem;'>{responses[2]}</p>
         </div>
         """, unsafe_allow_html=True)
         
         if st.button("📝 Record Progress"):
-            st.toast("Saved to your patterns of growth. 🌿")
+            st.toast("Saved to your family patterns. 🌿")
