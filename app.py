@@ -2,17 +2,21 @@ import streamlit as st
 import datetime
 import random
 import requests
+from streamlit_autorefresh import st_autorefresh
+
+# --- 10-SECOND AUTO-REFRESH TIMER ---
+# This refreshes the app every 10,000 milliseconds (10 seconds)
+count = st_autorefresh(interval=10000, key="wisdom_timer")
 
 # --- LIVE WISDOM ENGINE ---
 def get_guardian_wisdom():
     try:
-        # ZenQuotes API - Free, No Key Required
+        # ZenQuotes API - Pulls a fresh quote on every refresh
         response = requests.get("https://zenquotes.io/api/random", timeout=2)
         if response.status_code == 200:
             data = response.json()
             return f"“{data[0]['q']}” — {data[0]['a']}"
     except:
-        # Fallback if API is offline
         fallbacks = [
             "“Consistency is the highest form of love.”",
             "“I am the calm in my child's storm.”",
@@ -29,8 +33,11 @@ st.markdown("""
         color: #FFFFFF !important; font-weight: 700 !important;
     }
     h1, h2, h3, h4 { color: #000000 !important; font-family: 'Inter', sans-serif; font-weight: 800 !important; }
+    
+    /* Selection Box (Deep Earthy Brown-Red) */
     .stRadio { background-color: #6B4423 !important; padding: 15px; border-radius: 12px; border: 2px solid #4B3832; }
     .stRadio label { color: #FFFFFF !important; font-weight: 700 !important; }
+    
     .step-card {
         background: #EDE0D4; border-radius: 15px; padding: 20px;
         border: 2px solid #7F5539; margin-bottom: 20px;
@@ -41,12 +48,14 @@ st.markdown("""
         padding: 20px; border-radius: 12px;
         text-align: center; border-left: 8px solid #6B4423;
         font-style: italic; font-weight: 600; margin-bottom: 25px;
+        color: #000000 !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
 # --- CORE LOGIC ---
 def get_tiered_responses(user_input, age_group):
+    # Python is case sensitive, so we ensure input is handled consistently
     lookup = user_input.lower().strip()
     danger_zone = ["hurt", "kill", "suicide", "hit", "abuse", "beat", "punch"]
     if any(word in lookup for word in danger_zone):
@@ -80,10 +89,10 @@ grace_context = st.sidebar.select_slider("Child's State", options=["Calm", "Tire
 
 st.title("Guardian Response Partner")
 
-# DISPLAY LIVE WISDOM
+# WISDOM BOX WITH AUTO-TIMER
 st.markdown(f'<div class="wisdom-box">{get_guardian_wisdom()}</div>', unsafe_allow_html=True)
 
-if st.button("🔄 New Perspective"):
+if st.button("Now let me give you a new perspective"):
     st.rerun()
 
 if grace_context == "Meltdown":
@@ -111,3 +120,7 @@ if user_input:
         
         if st.button("📝 Record Progress"):
             st.success(f"Great work maintaining the line with {partner_name}. 🌿")
+
+# BOTTOM AFFIRMATION (Also rotates every 10s)
+affirmations = ["I am the calm in my child's storm.", "Consistency is the highest form of love.", "I have the strength to be firm and the heart to be gracious."]
+st.markdown(f"<h4 style='text-align: center; margin-top: 50px;'>✨ {random.choice(affirmations)} ✨</h4>", unsafe_allow_html=True)
